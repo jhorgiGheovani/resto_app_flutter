@@ -5,10 +5,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:resto_app/common/style.dart';
 import 'package:resto_app/data/api/api_service.dart';
-import 'package:resto_app/data/model/restaurant_detail_item.dart';
 import 'package:resto_app/provider/restaurant_detail_provider.dart';
 import 'package:resto_app/provider/result_state.dart';
 import 'package:resto_app/widgets/customer_review_list.dart';
+import 'package:resto_app/widgets/list_menu.dart';
+import 'package:resto_app/widgets/platform_widget.dart';
 import 'package:resto_app/widgets/reviews_input_dialog.dart';
 
 class RestaurantDetailPage extends StatefulWidget {
@@ -22,24 +23,20 @@ class RestaurantDetailPage extends StatefulWidget {
 }
 
 class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _reviewController = TextEditingController();
-  late Future<void> postReview;
   ScrollController? controller = ScrollController();
 
-  Widget _buildWithData() {
+  Widget _buildRestaurantDetails() {
     return ChangeNotifierProvider<RestaurantDetailProvider>(
       create: (_) =>
           RestaurantDetailProvider(apiService: ApiService(), id: widget.id),
       child: Consumer<RestaurantDetailProvider>(
-        builder: (context, state, _) {
-          final restaurantDetailProvider =
-              Provider.of<RestaurantDetailProvider>(context, listen: false);
-          if (state.state == ResultState.loading && state.result == null) {
+        builder: (context, restaurantDetailProvider, _) {
+          if (restaurantDetailProvider.state == ResultState.loading &&
+              restaurantDetailProvider.result == null) {
             return _buildLoading();
-          } else if (state.state == ResultState.hasData ||
-              state.result != null) {
-            var data = state.result?.restaurant;
+          } else if (restaurantDetailProvider.state == ResultState.hasData ||
+              restaurantDetailProvider.result != null) {
+            var data = restaurantDetailProvider.result?.restaurant;
             return Material(
                 color: primaryColor,
                 child: SingleChildScrollView(
@@ -106,8 +103,9 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                       ),
                       Padding(
                           padding: const EdgeInsets.only(top: 8),
-                          child: _buildMenuList(context, data.menus.foods,
-                              const Color(0xFFDBEEFF))),
+                          child: ListMenu(
+                              menu: data.menus.foods,
+                              backgroundColor: const Color(0xFFDBEEFF))),
                       Padding(
                         padding: const EdgeInsets.only(top: 8, left: 8),
                         child: Row(
@@ -126,8 +124,9 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                       ),
                       Padding(
                           padding: const EdgeInsets.only(top: 8),
-                          child: _buildMenuList(context, data.menus.drinks,
-                              const Color(0xFF00ADD5))),
+                          child: ListMenu(
+                              menu: data.menus.drinks,
+                              backgroundColor: const Color(0xFF00ADD5))),
                       Padding(
                         padding: const EdgeInsets.only(top: 8, left: 8),
                         child: Row(
@@ -202,10 +201,10 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                     ],
                   ),
                 ));
-          } else if (state.state == ResultState.noData) {
-            return _buildNoData("No data Found");
-          } else if (state.state == ResultState.error) {
-            return _buildError("ERROR");
+          } else if (restaurantDetailProvider.state == ResultState.noData) {
+            return _buildNoData(restaurantDetailProvider.message);
+          } else if (restaurantDetailProvider.state == ResultState.error) {
+            return _buildError(restaurantDetailProvider.message);
           } else {
             return _buildDefault();
           }
@@ -244,22 +243,6 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
     );
   }
 
-  // Widget _buildDetail() {
-  //   return Consumer<RestaurantDetailProvider>(builder: (context, state, _) {
-  //     if (state.state == ResultState.loading) {
-  //       return _buildLoading();
-  //     } else if (state.state == ResultState.hasData) {
-  //       return _buildWithData(state.result!.restaurant, context);
-  //     } else if (state.state == ResultState.noData) {
-  //       return _buildNoData(state.message);
-  //     } else if (state.state == ResultState.error) {
-  //       return _buildError(state.message);
-  //     } else {
-  //       return _buildDefault();
-  //     }
-  //   });
-  // }
-
   Widget _buildAndroid(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -287,7 +270,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),
-      body: _buildWithData(),
+      body: _buildRestaurantDetails(),
     );
   }
 
@@ -297,64 +280,15 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
         middle: Text('Restaurant App'),
         transitionBetweenRoutes: false,
       ),
-      child: _buildWithData(),
-    );
-  }
-
-//buat menu makanan-minumn
-  Widget _buildMenuList(
-      BuildContext context, List<Category> menu, Color backgroundColor) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: menu
-            .map((item) => _buildMenuItem(context, item.name, backgroundColor))
-            .toList(),
-      ),
-    );
-  }
-
-//buat menu makanan-minumn
-  Widget _buildMenuItem(BuildContext context, String name, Color background) {
-    return Card(
-      elevation: 0,
-      color: background,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: const BorderSide(
-            color: Colors.grey, width: 0.5), // Adjust the border radius here
-      ),
-      child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 5.0),
-          child: Row(
-            children: [
-              Text(
-                name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: myTextTheme.labelLarge?.copyWith(
-                    color: const Color.fromARGB(255, 67, 120, 146),
-                    fontFamily: GoogleFonts.rubik().fontFamily,
-                    fontWeight: FontWeight.w700,
-                    height: 1.3,
-                    letterSpacing: 0.2,
-                    fontSize: 12),
-              ),
-            ],
-          )),
+      child: _buildRestaurantDetails(),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Material(child: _buildAndroid(context));
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _nameController
-        .dispose(); // Dispose of the controller when the widget is disposed
-    _reviewController.dispose();
+    return PlatformWidget(
+      androidBuilder: _buildAndroid,
+      iosBuilder: _buildIos,
+    );
   }
 }
