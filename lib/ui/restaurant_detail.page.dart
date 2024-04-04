@@ -22,356 +22,197 @@ class RestaurantDetailPage extends StatefulWidget {
 }
 
 class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
-  // final TextEditingController _nameController = TextEditingController();
-  // final TextEditingController _reviewController = TextEditingController();
-  // late Future<void> postReview;
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _reviewController = TextEditingController();
+  late Future<void> postReview;
   ScrollController? controller = ScrollController();
 
-  Widget _buildWithData(RestaurantDetailItem data,
-      RestaurantDetailProvider restaurantDetailProvider) {
-    return Material(
-        color: primaryColor,
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(20),
-                  bottomRight: Radius.circular(20),
-                ),
-                child: Image.network(
-                  "https://restaurant-api.dicoding.dev/images/small/${data!.pictureId}",
-                  fit: BoxFit
-                      .cover, // Zooms the image to cover the entire available space
-                  width: double.infinity,
-                  height: 250,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 12, left: 8),
-                child: Text(
-                  data.name,
-                  style: myTextTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.1,
-                      fontFamily: GoogleFonts.rubik().fontFamily),
-                ),
-              ),
-              Padding(
-                  padding: const EdgeInsets.only(top: 0, left: 8),
-                  child: Text(
-                    "${data.address}, ${data.city}",
-                    style: myTextTheme.titleSmall?.copyWith(
-                        color: Colors.black54,
-                        letterSpacing: 0.01,
-                        fontFamily: GoogleFonts.rubik().fontFamily),
-                  )),
-              Padding(
-                padding: const EdgeInsets.only(top: 3, left: 8, right: 8),
-                child: Text(
-                  data.description,
-                  textAlign: TextAlign.justify,
-                  style: myTextTheme.bodySmall?.copyWith(color: Colors.grey),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 8, left: 8),
-                child: Row(
-                  children: [
-                    const Icon(
-                      FontAwesomeIcons.utensils,
-                      size: 15,
-                      color: Colors.blueGrey,
-                    ), // Adjust the icon and size as needed
-                    const SizedBox(
-                        width:
-                            8), // Optional: Adds some space between the icon and the text
-                    Text("Foods", style: myTextTheme.titleMedium),
-                  ],
-                ),
-              ),
-              Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: _buildMenuList(
-                      context, data.menus.foods, const Color(0xFFDBEEFF))),
-              Padding(
-                padding: const EdgeInsets.only(top: 8, left: 8),
-                child: Row(
-                  children: [
-                    const Icon(
-                      FontAwesomeIcons.mugSaucer,
-                      size: 15,
-                      color: Colors.blueGrey,
-                    ), // Adjust the icon and size as needed
-                    const SizedBox(
-                        width:
-                            8), // Optional: Adds some space between the icon and the text
-                    Text("Drinks", style: myTextTheme.titleMedium),
-                  ],
-                ),
-              ),
-              Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: _buildMenuList(
-                      context, data.menus.drinks, const Color(0xFF00ADD5))),
-              Padding(
-                padding: const EdgeInsets.only(top: 8, left: 8),
-                child: Row(
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(
-                          FontAwesomeIcons.solidComments,
-                          size: 15,
-                          color: Colors.blueGrey,
-                        ), // Adjust the icon and size as needed
-                        const SizedBox(
-                            width:
-                                8), // Optional: Adds some space between the icon and the text
-                        Text("Customer Reviews",
-                            style: myTextTheme.titleMedium),
-                      ],
-                    ),
-                    const Spacer(),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 12),
-                      child: SizedBox(
-                        height: 25,
-                        child: ElevatedButton(
-                          //Button Add Review
-                          onPressed: () {
-                            showDialog(
-                                context: context,
-                                builder: (dialogcontext) {
-                                  return ReviewsInputDialog(
-                                      restaurantDetailProvider:
-                                          restaurantDetailProvider,
-                                      id: widget.id,
-                                      controller: controller);
-                                });
-                          },
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                                const Color(0xFFDBFFDD)),
-                            padding: MaterialStateProperty.all<EdgeInsets>(
-                                const EdgeInsets.symmetric(horizontal: 10)),
-                          ),
-                          child: Row(
-                            children: [
-                              Text("Add review",
-                                  style: myTextTheme.labelLarge?.copyWith(
-                                      color: const Color(0xFF0C710F),
-                                      fontFamily:
-                                          GoogleFonts.rubik().fontFamily,
-                                      fontWeight: FontWeight.w700,
-                                      height: 1.3,
-                                      letterSpacing: 0.1,
-                                      fontSize: 12))
-                            ],
-                          ),
+  Widget _buildWithData() {
+    return ChangeNotifierProvider<RestaurantDetailProvider>(
+      create: (_) =>
+          RestaurantDetailProvider(apiService: ApiService(), id: widget.id),
+      child: Consumer<RestaurantDetailProvider>(
+        builder: (context, state, _) {
+          final restaurantDetailProvider =
+              Provider.of<RestaurantDetailProvider>(context, listen: false);
+          if (state.state == ResultState.loading && state.result == null) {
+            return _buildLoading();
+          } else if (state.state == ResultState.hasData ||
+              state.result != null) {
+            var data = state.result?.restaurant;
+            return Material(
+                color: primaryColor,
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(20),
+                          bottomRight: Radius.circular(20),
+                        ),
+                        child: Image.network(
+                          "https://restaurant-api.dicoding.dev/images/small/${data!.pictureId}",
+                          fit: BoxFit
+                              .cover, // Zooms the image to cover the entire available space
+                          width: double.infinity,
+                          height: 250,
                         ),
                       ),
-                    )
-                  ],
-                ),
-              ),
-              CustomerReviewList(
-                customerReviews: data.customerReviews,
-                controller: controller,
-              )
-            ],
-          ),
-        ));
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12, left: 8),
+                        child: Text(
+                          data.name,
+                          style: myTextTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.1,
+                              fontFamily: GoogleFonts.rubik().fontFamily),
+                        ),
+                      ),
+                      Padding(
+                          padding: const EdgeInsets.only(top: 0, left: 8),
+                          child: Text(
+                            "${data.address}, ${data.city}",
+                            style: myTextTheme.titleSmall?.copyWith(
+                                color: Colors.black54,
+                                letterSpacing: 0.01,
+                                fontFamily: GoogleFonts.rubik().fontFamily),
+                          )),
+                      Padding(
+                        padding:
+                            const EdgeInsets.only(top: 3, left: 8, right: 8),
+                        child: Text(
+                          data.description,
+                          textAlign: TextAlign.justify,
+                          style: myTextTheme.bodySmall
+                              ?.copyWith(color: Colors.grey),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8, left: 8),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              FontAwesomeIcons.utensils,
+                              size: 15,
+                              color: Colors.blueGrey,
+                            ), // Adjust the icon and size as needed
+                            const SizedBox(
+                                width:
+                                    8), // Optional: Adds some space between the icon and the text
+                            Text("Foods", style: myTextTheme.titleMedium),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: _buildMenuList(context, data.menus.foods,
+                              const Color(0xFFDBEEFF))),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8, left: 8),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              FontAwesomeIcons.mugSaucer,
+                              size: 15,
+                              color: Colors.blueGrey,
+                            ), // Adjust the icon and size as needed
+                            const SizedBox(
+                                width:
+                                    8), // Optional: Adds some space between the icon and the text
+                            Text("Drinks", style: myTextTheme.titleMedium),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: _buildMenuList(context, data.menus.drinks,
+                              const Color(0xFF00ADD5))),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8, left: 8),
+                        child: Row(
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(
+                                  FontAwesomeIcons.solidComments,
+                                  size: 15,
+                                  color: Colors.blueGrey,
+                                ), // Adjust the icon and size as needed
+                                const SizedBox(
+                                    width:
+                                        8), // Optional: Adds some space between the icon and the text
+                                Text("Customer Reviews",
+                                    style: myTextTheme.titleMedium),
+                              ],
+                            ),
+                            const Spacer(),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 12),
+                              child: SizedBox(
+                                height: 25,
+                                child: ElevatedButton(
+                                  //Button Add Review
+                                  onPressed: () {
+                                    showDialog(
+                                        context: context,
+                                        builder: (dialogcontext) {
+                                          return ReviewsInputDialog(
+                                              restaurantDetailProvider:
+                                                  restaurantDetailProvider,
+                                              id: widget.id,
+                                              controller: controller);
+                                        });
+                                  },
+                                  style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateProperty.all<Color>(
+                                            const Color(0xFFDBFFDD)),
+                                    padding:
+                                        MaterialStateProperty.all<EdgeInsets>(
+                                            const EdgeInsets.symmetric(
+                                                horizontal: 10)),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Text("Add review",
+                                          style: myTextTheme.labelLarge
+                                              ?.copyWith(
+                                                  color:
+                                                      const Color(0xFF0C710F),
+                                                  fontFamily:
+                                                      GoogleFonts.rubik()
+                                                          .fontFamily,
+                                                  fontWeight: FontWeight.w700,
+                                                  height: 1.3,
+                                                  letterSpacing: 0.1,
+                                                  fontSize: 12))
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      CustomerReviewList(
+                        customerReviews: data.customerReviews,
+                        controller: controller,
+                      )
+                    ],
+                  ),
+                ));
+          } else if (state.state == ResultState.noData) {
+            return _buildNoData("No data Found");
+          } else if (state.state == ResultState.error) {
+            return _buildError("ERROR");
+          } else {
+            return _buildDefault();
+          }
+        },
+      ),
+    );
   }
-
-  // Widget _buildWithData() {
-  //   return ChangeNotifierProvider<RestaurantDetailProvider>(
-  //     create: (_) =>
-  //         RestaurantDetailProvider(apiService: ApiService(), id: widget.id),
-  //     child: Consumer<RestaurantDetailProvider>(
-  //       builder: (context, state, _) {
-  //         final restaurantDetailProvider =
-  //             Provider.of<RestaurantDetailProvider>(context, listen: false);
-
-  //         if (state.state == ResultState.loading && state.result == null) {
-  //           return _buildLoading();
-  //         } else if (state.state == ResultState.hasData ||
-  //             state.result != null) {
-  //           var data = state.result?.restaurant;
-  //           return Material(
-  //               color: primaryColor,
-  //               child: SingleChildScrollView(
-  //                 child: Column(
-  //                   crossAxisAlignment: CrossAxisAlignment.start,
-  //                   children: [
-  //                     ClipRRect(
-  //                       borderRadius: const BorderRadius.only(
-  //                         bottomLeft: Radius.circular(20),
-  //                         bottomRight: Radius.circular(20),
-  //                       ),
-  //                       child: Image.network(
-  //                         "https://restaurant-api.dicoding.dev/images/small/${data!.pictureId}",
-  //                         fit: BoxFit
-  //                             .cover, // Zooms the image to cover the entire available space
-  //                         width: double.infinity,
-  //                         height: 250,
-  //                       ),
-  //                     ),
-  //                     Padding(
-  //                       padding: const EdgeInsets.only(top: 12, left: 8),
-  //                       child: Text(
-  //                         data.name,
-  //                         style: myTextTheme.titleLarge?.copyWith(
-  //                             fontWeight: FontWeight.bold,
-  //                             letterSpacing: 0.1,
-  //                             fontFamily: GoogleFonts.rubik().fontFamily),
-  //                       ),
-  //                     ),
-  //                     Padding(
-  //                         padding: const EdgeInsets.only(top: 0, left: 8),
-  //                         child: Text(
-  //                           "${data.address}, ${data.city}",
-  //                           style: myTextTheme.titleSmall?.copyWith(
-  //                               color: Colors.black54,
-  //                               letterSpacing: 0.01,
-  //                               fontFamily: GoogleFonts.rubik().fontFamily),
-  //                         )),
-  //                     Padding(
-  //                       padding:
-  //                           const EdgeInsets.only(top: 3, left: 8, right: 8),
-  //                       child: Text(
-  //                         data.description,
-  //                         textAlign: TextAlign.justify,
-  //                         style: myTextTheme.bodySmall
-  //                             ?.copyWith(color: Colors.grey),
-  //                       ),
-  //                     ),
-  //                     Padding(
-  //                       padding: const EdgeInsets.only(top: 8, left: 8),
-  //                       child: Row(
-  //                         children: [
-  //                           const Icon(
-  //                             FontAwesomeIcons.utensils,
-  //                             size: 15,
-  //                             color: Colors.blueGrey,
-  //                           ), // Adjust the icon and size as needed
-  //                           const SizedBox(
-  //                               width:
-  //                                   8), // Optional: Adds some space between the icon and the text
-  //                           Text("Foods", style: myTextTheme.titleMedium),
-  //                         ],
-  //                       ),
-  //                     ),
-  //                     Padding(
-  //                         padding: const EdgeInsets.only(top: 8),
-  //                         child: _buildMenuList(context, data.menus.foods,
-  //                             const Color(0xFFDBEEFF))),
-  //                     Padding(
-  //                       padding: const EdgeInsets.only(top: 8, left: 8),
-  //                       child: Row(
-  //                         children: [
-  //                           const Icon(
-  //                             FontAwesomeIcons.mugSaucer,
-  //                             size: 15,
-  //                             color: Colors.blueGrey,
-  //                           ), // Adjust the icon and size as needed
-  //                           const SizedBox(
-  //                               width:
-  //                                   8), // Optional: Adds some space between the icon and the text
-  //                           Text("Drinks", style: myTextTheme.titleMedium),
-  //                         ],
-  //                       ),
-  //                     ),
-  //                     Padding(
-  //                         padding: const EdgeInsets.only(top: 8),
-  //                         child: _buildMenuList(context, data.menus.drinks,
-  //                             const Color(0xFF00ADD5))),
-  //                     Padding(
-  //                       padding: const EdgeInsets.only(top: 8, left: 8),
-  //                       child: Row(
-  //                         children: [
-  //                           Row(
-  //                             children: [
-  //                               const Icon(
-  //                                 FontAwesomeIcons.solidComments,
-  //                                 size: 15,
-  //                                 color: Colors.blueGrey,
-  //                               ), // Adjust the icon and size as needed
-  //                               const SizedBox(
-  //                                   width:
-  //                                       8), // Optional: Adds some space between the icon and the text
-  //                               Text("Customer Reviews",
-  //                                   style: myTextTheme.titleMedium),
-  //                             ],
-  //                           ),
-  //                           const Spacer(),
-  //                           Padding(
-  //                             padding: const EdgeInsets.only(right: 12),
-  //                             child: SizedBox(
-  //                               height: 25,
-  //                               child: ElevatedButton(
-  //                                 //Button Add Review
-  //                                 onPressed: () {
-  //                                   showDialog(
-  //                                       context: context,
-  //                                       builder: (dialogcontext) {
-  //                                         return ReviewsInputDialog(
-  //                                             restaurantDetailProvider:
-  //                                                 restaurantDetailProvider,
-  //                                             id: widget.id,
-  //                                             controller: controller);
-  //                                       });
-  //                                 },
-  //                                 style: ButtonStyle(
-  //                                   backgroundColor:
-  //                                       MaterialStateProperty.all<Color>(
-  //                                           const Color(0xFFDBFFDD)),
-  //                                   padding:
-  //                                       MaterialStateProperty.all<EdgeInsets>(
-  //                                           const EdgeInsets.symmetric(
-  //                                               horizontal: 10)),
-  //                                 ),
-  //                                 child: Row(
-  //                                   children: [
-  //                                     Text("Add review",
-  //                                         style: myTextTheme.labelLarge
-  //                                             ?.copyWith(
-  //                                                 color:
-  //                                                     const Color(0xFF0C710F),
-  //                                                 fontFamily:
-  //                                                     GoogleFonts.rubik()
-  //                                                         .fontFamily,
-  //                                                 fontWeight: FontWeight.w700,
-  //                                                 height: 1.3,
-  //                                                 letterSpacing: 0.1,
-  //                                                 fontSize: 12))
-  //                                   ],
-  //                                 ),
-  //                               ),
-  //                             ),
-  //                           )
-  //                         ],
-  //                       ),
-  //                     ),
-  //                     CustomerReviewList(
-  //                       customerReviews: data.customerReviews,
-  //                       controller: controller,
-  //                     )
-  //                   ],
-  //                 ),
-  //               ));
-  //         } else if (state.state == ResultState.noData) {
-  //           return _buildNoData("No data Found");
-  //         } else if (state.state == ResultState.error) {
-  //           return _buildError("ERROR");
-  //         } else {
-  //           return _buildDefault();
-  //         }
-  //       },
-  //     ),
-  //   );
-  // }
 
   Widget _buildLoading() {
     return const Center(
@@ -403,42 +244,21 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
     );
   }
 
-  Widget _buildDetail() {
-    return ChangeNotifierProvider<RestaurantDetailProvider>(
-      create: (_) =>
-          RestaurantDetailProvider(apiService: ApiService(), id: widget.id),
-      child: Consumer<RestaurantDetailProvider>(builder: (context, state, _) {
-        final restaurantDetailProvider =
-            Provider.of<RestaurantDetailProvider>(context, listen: false);
-        if (state.state == ResultState.loading) {
-          return _buildLoading();
-        } else if (state.state == ResultState.hasData || state.result != null) {
-          return _buildWithData(
-              state.result!.restaurant, restaurantDetailProvider);
-        } else if (state.state == ResultState.noData) {
-          return _buildNoData(state.message);
-        } else if (state.state == ResultState.error) {
-          return _buildError(state.message);
-        } else {
-          return _buildDefault();
-        }
-      }),
-    );
-
-    //  Consumer<RestaurantDetailProvider>(builder: (context, state, _) {
-    //   if (state.state == ResultState.loading) {
-    //     return _buildLoading();
-    //   } else if (state.state == ResultState.hasData) {
-    //     return _buildWithData(state.result!.restaurant, context);
-    //   } else if (state.state == ResultState.noData) {
-    //     return _buildNoData(state.message);
-    //   } else if (state.state == ResultState.error) {
-    //     return _buildError(state.message);
-    //   } else {
-    //     return _buildDefault();
-    //   }
-    // });
-  }
+  // Widget _buildDetail() {
+  //   return Consumer<RestaurantDetailProvider>(builder: (context, state, _) {
+  //     if (state.state == ResultState.loading) {
+  //       return _buildLoading();
+  //     } else if (state.state == ResultState.hasData) {
+  //       return _buildWithData(state.result!.restaurant, context);
+  //     } else if (state.state == ResultState.noData) {
+  //       return _buildNoData(state.message);
+  //     } else if (state.state == ResultState.error) {
+  //       return _buildError(state.message);
+  //     } else {
+  //       return _buildDefault();
+  //     }
+  //   });
+  // }
 
   Widget _buildAndroid(BuildContext context) {
     return Scaffold(
@@ -467,7 +287,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),
-      body: _buildDetail(),
+      body: _buildWithData(),
     );
   }
 
@@ -477,7 +297,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
         middle: Text('Restaurant App'),
         transitionBetweenRoutes: false,
       ),
-      child: _buildDetail(),
+      child: _buildWithData(),
     );
   }
 
@@ -527,6 +347,14 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: _buildDetail());
+    return Material(child: _buildAndroid(context));
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _nameController
+        .dispose(); // Dispose of the controller when the widget is disposed
+    _reviewController.dispose();
   }
 }
