@@ -15,7 +15,7 @@ class RestaurantDetailProvider extends ChangeNotifier {
 
   RestaurantDetail? _restaurantDetail; //restaurant details response
   ReviewsResponse? _postReviewResponse; // post review response
-  late ResultState _state;
+  late ResultState _state = ResultState.loading;
   late SubmitState _submitState = SubmitState.loading;
   String _message = '';
 

@@ -22,7 +22,11 @@ class _RestaurantListPageState extends State<RestaurantListPage> {
   Widget _buildList() {
     return Consumer<RestaurantListProvider>(builder: (context, state, _) {
       if (state.state == ResultState.loading) {
-        return const Center(child: CircularProgressIndicator());
+        return const Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+          ),
+        );
       } else if (state.state == ResultState.hasData) {
         return ListView.builder(
             shrinkWrap: true,

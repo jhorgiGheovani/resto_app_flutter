@@ -63,7 +63,7 @@ class RestaurantListProvider extends ChangeNotifier {
       if (searchResult.restaurants.isEmpty) {
         _state = ResultState.noData;
         notifyListeners();
-        return _message = 'Empty Data';
+        return _message = 'Can\'t find match resto, please try another one!';
       } else {
         _state = ResultState.hasData;
         notifyListeners();

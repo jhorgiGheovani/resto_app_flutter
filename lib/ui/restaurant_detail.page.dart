@@ -215,7 +215,9 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
 
   Widget _buildLoading() {
     return const Center(
-      child: CircularProgressIndicator(),
+      child: CircularProgressIndicator(
+        valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+      ),
     );
   }
 

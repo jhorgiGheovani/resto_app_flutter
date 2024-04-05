@@ -42,7 +42,11 @@ class _SearchPage extends State<SearchPage> {
     return Consumer<RestaurantListProvider>(
       builder: (context, provider, _) {
         if (provider.state == ResultState.loading) {
-          return const Center(child: Text("loading"));
+          return const Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+            ),
+          );
         } else if (provider.state == ResultState.hasData) {
           return ListView.builder(
               shrinkWrap: true,
