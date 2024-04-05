@@ -36,12 +36,14 @@ class RestaurantListCard extends StatelessWidget {
                 children: [
                   // Image
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: Image.network(
-                      "https://restaurant-api.dicoding.dev/images/small/${restaurantListItem.pictureId}",
-                      fit: BoxFit.fill,
-                    ),
-                  ),
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Hero(
+                        tag: restaurantListItem.pictureId,
+                        child: Image.network(
+                          "https://restaurant-api.dicoding.dev/images/small/${restaurantListItem.pictureId}",
+                          fit: BoxFit.fill,
+                        ),
+                      )),
                   // Rating
                   Positioned(
                     bottom: 0,

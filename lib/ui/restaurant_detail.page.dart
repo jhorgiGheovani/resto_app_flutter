@@ -48,13 +48,15 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                           bottomLeft: Radius.circular(20),
                           bottomRight: Radius.circular(20),
                         ),
-                        child: Image.network(
-                          "https://restaurant-api.dicoding.dev/images/small/${data!.pictureId}",
-                          fit: BoxFit
-                              .cover, // Zooms the image to cover the entire available space
-                          width: double.infinity,
-                          height: 250,
-                        ),
+                        child: Hero(
+                            tag: data!.pictureId,
+                            child: Image.network(
+                              "https://restaurant-api.dicoding.dev/images/small/${data!.pictureId}",
+                              fit: BoxFit
+                                  .cover, // Zooms the image to cover the entire available space
+                              width: double.infinity,
+                              height: 250,
+                            )),
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 12, left: 8),
