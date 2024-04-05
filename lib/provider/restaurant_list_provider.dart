@@ -1,4 +1,6 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:resto_app/data/api/api_service.dart';
 import 'package:resto_app/data/model/restaurant_list.dart';
 import 'package:resto_app/data/model/search_result.dart';
@@ -24,18 +26,32 @@ class RestaurantListProvider extends ChangeNotifier {
       _state = ResultState.loading;
       notifyListeners();
       final restaurantList = await apiService.getRestaurantList();
-      if (restaurantList.restaurants.isEmpty) {
-        _state = ResultState.noData;
-        return _message = 'Empty Data';
-      } else {
-        _state = ResultState.hasData;
+      final List<ConnectivityResult> connectivityResult =
+          await (Connectivity().checkConnectivity());
+
+      if (connectivityResult.contains(ConnectivityResult.none)) {
+        _state = ResultState.error;
         notifyListeners();
-        return _restaurantList = restaurantList;
+        return _message = 'No Internet Connection';
+      } else {
+        if (restaurantList.restaurants.isEmpty) {
+          _state = ResultState.noData;
+          return _message = 'Empty Data';
+        } else {
+          _state = ResultState.hasData;
+          notifyListeners();
+          return _restaurantList = restaurantList;
+        }
       }
     } catch (e) {
       _state = ResultState.error;
       notifyListeners();
-      return _message = 'Error --> $e';
+
+      if (e is ClientException) {
+        return _message = 'Something wrong with your network!';
+      } else {
+        return _message = 'Failed to load restaurant details';
+      }
     }
   }
 
@@ -56,7 +72,12 @@ class RestaurantListProvider extends ChangeNotifier {
     } catch (e) {
       _state = ResultState.error;
       notifyListeners();
-      return _message = 'Error --> $e';
+
+      if (e is ClientException) {
+        return _message = 'Something wrong with your network!';
+      } else {
+        return _message = 'Failed to load restaurant details';
+      }
     }
   }
 }

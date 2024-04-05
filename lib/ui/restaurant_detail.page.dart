@@ -206,7 +206,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
           } else if (restaurantDetailProvider.state == ResultState.error) {
             return _buildError(restaurantDetailProvider.message);
           } else {
-            return _buildDefault();
+            return _buildDefault(restaurantDetailProvider.message);
           }
         },
       ),
@@ -235,10 +235,10 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
     );
   }
 
-  Widget _buildDefault() {
-    return const Center(
+  Widget _buildDefault(String message) {
+    return Center(
       child: Material(
-        child: Text(''),
+        child: Text(message),
       ),
     );
   }
