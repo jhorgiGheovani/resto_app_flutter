@@ -82,7 +82,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                           data.description,
                           textAlign: TextAlign.justify,
                           style: myTextTheme.bodySmall
-                              ?.copyWith(color: Colors.grey),
+                              ?.copyWith(color: Colors.black87),
                         ),
                       ),
                       Padding(
@@ -126,7 +126,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                           padding: const EdgeInsets.only(top: 8),
                           child: ListMenu(
                               menu: data.menus.drinks,
-                              backgroundColor: const Color(0xFF00ADD5))),
+                              backgroundColor: Colors.blue.shade100)),
                       Padding(
                         padding: const EdgeInsets.only(top: 8, left: 8),
                         child: Row(

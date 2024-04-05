@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:resto_app/common/style.dart';
 import 'package:resto_app/data/model/restaurant_detail_item.dart';

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:resto_app/common/style.dart';
 import 'package:resto_app/data/model/restaurant_list_item.dart';
 import 'package:resto_app/ui/restaurant_detail.page.dart';
@@ -55,9 +56,13 @@ class RestaurantListCard extends StatelessWidget {
                             iconColor: const Color(0xFFFFD43B),
                             textmessage: Text(
                               restaurantListItem.rating.toString(),
-                              style: myTextTheme.bodySmall?.copyWith(
+                              style: myTextTheme.labelLarge?.copyWith(
                                   color: Colors.white,
-                                  fontWeight: FontWeight.w700),
+                                  fontFamily: GoogleFonts.rubik().fontFamily,
+                                  fontWeight: FontWeight.w700,
+                                  height: 1.3,
+                                  letterSpacing: 0.2,
+                                  fontSize: 14),
                             ),
                           ),
                           Padding(
@@ -68,8 +73,13 @@ class RestaurantListCard extends StatelessWidget {
                               iconColor: const Color.fromARGB(255, 113, 96, 96),
                               textmessage: Text(
                                 restaurantListItem.city,
-                                style: myTextTheme.bodySmall
-                                    ?.copyWith(fontWeight: FontWeight.w700),
+                                style: myTextTheme.labelLarge?.copyWith(
+                                    color: Colors.grey.shade900,
+                                    fontFamily: GoogleFonts.rubik().fontFamily,
+                                    fontWeight: FontWeight.w700,
+                                    height: 1.3,
+                                    letterSpacing: 0.2,
+                                    fontSize: 14),
                               ),
                             ),
                           )
@@ -84,7 +94,10 @@ class RestaurantListCard extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 4.0, top: 0),
                 child: Text(
                   restaurantListItem.name,
-                  style: myTextTheme.titleLarge,
+                  style: myTextTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.3,
+                      fontFamily: GoogleFonts.rubik().fontFamily),
                 ),
               ),
               // Description
@@ -92,7 +105,7 @@ class RestaurantListCard extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 4.0, bottom: 5.0),
                 child: Text(
                   restaurantListItem.description,
-                  style: myTextTheme.bodySmall,
+                  style: myTextTheme.bodySmall?.copyWith(color: Colors.black87),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),

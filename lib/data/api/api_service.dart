@@ -6,14 +6,23 @@ import 'package:resto_app/data/model/restaurant_list.dart';
 import 'package:http/http.dart' as http;
 import 'package:resto_app/data/model/reviews_request_body.dart';
 import 'package:resto_app/data/model/reviews_response.dart';
+import 'package:resto_app/data/model/search_result.dart';
 
 class ApiService {
   static const String _baseUrl = 'https://restaurant-api.dicoding.dev';
-
   Future<RestaurantList> getRestaurantList() async {
     final response = await http.get(Uri.parse("$_baseUrl/list"));
     if (response.statusCode == 200) {
       return RestaurantList.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load restaurant list!');
+    }
+  }
+
+  Future<SearchResult> searchResto(String query) async {
+    final request = await http.get(Uri.parse("$_baseUrl/search?q=$query"));
+    if (request.statusCode == 200) {
+      return SearchResult.fromJson(jsonDecode(request.body));
     } else {
       throw Exception('Failed to load restaurant list!');
     }
