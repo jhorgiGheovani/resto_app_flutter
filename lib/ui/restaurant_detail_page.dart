@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:resto_app/common/style.dart';
 import 'package:resto_app/data/api/api_service.dart';
+import 'package:resto_app/data/model/restaurant_list_item.dart';
+import 'package:resto_app/provider/database_provider.dart';
 import 'package:resto_app/provider/restaurant_detail_provider.dart';
 import 'package:resto_app/provider/result_state.dart';
 import 'package:resto_app/widgets/customer_review_list.dart';
@@ -51,7 +53,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                         child: Hero(
                             tag: data!.pictureId,
                             child: Image.network(
-                              "https://restaurant-api.dicoding.dev/images/small/${data!.pictureId}",
+                              "https://restaurant-api.dicoding.dev/images/small/${data.pictureId}",
                               fit: BoxFit
                                   .cover, // Zooms the image to cover the entire available space
                               width: double.infinity,
@@ -59,15 +61,55 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                             )),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(top: 12, left: 8),
-                        child: Text(
-                          data.name,
-                          style: myTextTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.1,
-                              fontFamily: GoogleFonts.rubik().fontFamily),
-                        ),
-                      ),
+                          padding: const EdgeInsets.only(
+                              top: 12, left: 8, right: 14),
+                          child: Row(
+                            children: [
+                              Text(
+                                data.name,
+                                style: myTextTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.1,
+                                    fontFamily: GoogleFonts.rubik().fontFamily),
+                              ),
+                              const Spacer(),
+                              Consumer<DatabaseProvider>(
+                                  builder: (context, provider, _) {
+                                return FutureBuilder(
+                                    future: provider.isFavorite(widget.id),
+                                    builder: (context, snapshot) {
+                                      var isFavorite = snapshot.data ?? false;
+                                      return IconButton(
+                                        icon: Icon(
+                                          isFavorite
+                                              ? Icons.favorite
+                                              : Icons.favorite_border,
+                                          color: isFavorite ? Colors.red : null,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            if (isFavorite) {
+                                              // Remove from favorites if already favorite
+                                              provider.removeFavorite(data.id);
+                                            } else {
+                                              // Add to favorites if not already favorite
+                                              provider.addFavorite(
+                                                  RestaurantListItem(
+                                                      id: data.id,
+                                                      name: data.name,
+                                                      description:
+                                                          data.description,
+                                                      pictureId: data.pictureId,
+                                                      city: data.city,
+                                                      rating: data.rating));
+                                            }
+                                          });
+                                        },
+                                      );
+                                    });
+                              })
+                            ],
+                          )),
                       Padding(
                           padding: const EdgeInsets.only(top: 0, left: 8),
                           child: Text(

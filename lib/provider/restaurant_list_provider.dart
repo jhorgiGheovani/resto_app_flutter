@@ -1,6 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 import 'package:resto_app/data/api/api_service.dart';
 import 'package:resto_app/data/model/restaurant_list.dart';
 import 'package:resto_app/data/model/search_result.dart';
@@ -25,7 +26,7 @@ class RestaurantListProvider extends ChangeNotifier {
     try {
       _state = ResultState.loading;
       notifyListeners();
-      final restaurantList = await apiService.getRestaurantList();
+      final restaurantList = await apiService.getRestaurantList(http.Client());
       final List<ConnectivityResult> connectivityResult =
           await (Connectivity().checkConnectivity());
 
@@ -59,7 +60,7 @@ class RestaurantListProvider extends ChangeNotifier {
     try {
       _state = ResultState.loading;
       notifyListeners();
-      final searchResult = await apiService.searchResto(query);
+      final searchResult = await apiService.searchResto(http.Client(), query);
       if (searchResult.restaurants.isEmpty) {
         _state = ResultState.noData;
         notifyListeners();

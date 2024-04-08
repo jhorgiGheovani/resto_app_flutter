@@ -6,7 +6,9 @@ import 'package:resto_app/common/style.dart';
 import 'package:resto_app/data/api/api_service.dart';
 import 'package:resto_app/provider/restaurant_list_provider.dart';
 import 'package:resto_app/provider/result_state.dart';
+import 'package:resto_app/ui/favorite_resto_page.dart';
 import 'package:resto_app/ui/search_page.dart';
+import 'package:resto_app/ui/settings_page.dart';
 import 'package:resto_app/widgets/platform_widget.dart';
 import 'package:resto_app/widgets/restaurant_list_card.dart';
 
@@ -62,6 +64,23 @@ class _RestaurantListPageState extends State<RestaurantListPage> {
         backgroundColor: Colors.white,
         foregroundColor: Colors.white,
         shadowColor: Colors.white,
+        actions: <Widget>[
+          PopupMenuButton<String>(
+            onSelected: handleClick,
+            icon: const Icon(
+              Icons.more_vert,
+              color: Colors.black87,
+            ),
+            itemBuilder: (BuildContext context) {
+              return {'Favorite', 'Settings'}.map((String choice) {
+                return PopupMenuItem<String>(
+                  value: choice,
+                  child: Text(choice),
+                );
+              }).toList();
+            },
+          ),
+        ],
         scrolledUnderElevation: 0.0,
         title: Container(
           width: double.infinity,
@@ -117,6 +136,18 @@ class _RestaurantListPageState extends State<RestaurantListPage> {
       ),
       body: _buildList(),
     );
+  }
+
+  void handleClick(String value) {
+    switch (value) {
+      case 'Favorite':
+        Navigator.pushNamed(context, FavoriteRestoPage.routeName);
+
+        break;
+      case 'Settings':
+        Navigator.pushNamed(context, SettingsPage.routeName);
+        break;
+    }
   }
 
   Widget _buildIos(BuildContext context) {

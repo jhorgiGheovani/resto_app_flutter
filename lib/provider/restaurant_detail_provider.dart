@@ -1,6 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 import 'package:resto_app/data/api/api_service.dart';
 import 'package:resto_app/data/model/restaurant_detail.dart';
 import 'package:resto_app/data/model/reviews_response.dart';
@@ -34,7 +35,8 @@ class RestaurantDetailProvider extends ChangeNotifier {
       _state = ResultState.loading;
       notifyListeners();
 
-      final restaurantDetail = await apiService.getRestaurantDetail(id);
+      final restaurantDetail =
+          await apiService.getRestaurantDetail(http.Client(), id);
 
       if (connectivityResult.contains(ConnectivityResult.none)) {
         _state = ResultState.error;
@@ -65,7 +67,8 @@ class RestaurantDetailProvider extends ChangeNotifier {
       _submitState = SubmitState.loading;
       notifyListeners();
 
-      final postReview = await apiService.postReview(id, name, review);
+      final postReview =
+          await apiService.postReview(http.Client(), id, name, review);
       //sukses
       _submitState = SubmitState.success;
       _postReviewResponse = postReview;

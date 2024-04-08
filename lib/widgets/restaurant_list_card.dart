@@ -3,7 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:resto_app/common/style.dart';
 import 'package:resto_app/data/model/restaurant_list_item.dart';
-import 'package:resto_app/ui/restaurant_detail.page.dart';
+import 'package:resto_app/ui/restaurant_detail_page.dart';
 import 'package:resto_app/widgets/badge.dart';
 
 class RestaurantListCard extends StatelessWidget {
